@@ -19,18 +19,18 @@ def systemStart():
 	    print("Usage: %s username" % (sys.argv[0],))
 	    sys.exit()
 
-def getPlaylistsToken(username):
-	scope = 'playlist-read-private'
+def getToken(username):
+	scope = 'playlist-read-private playlist-read-collaborative playlist-read-private playlist-modify-public playlist-modify-private'
 
 	token = util.prompt_for_user_token(username, scope, client_id=secrets.CLIENT_ID, client_secret=secrets.CLIENT_SECRET, redirect_uri=secrets.REDIRECT_URI)
 
 	return token
 
 # TO DO: Update so that more than 20 playlists can be shown at a time
-def getPlaylists(username):
+def getPlaylists(username, token):
 	playlists_dict = {}
 
-	token = getPlaylistsToken(username) 
+	# token = getPlaylistsToken(username) 
 	bearer_authorization = "Bearer " + token
 
 	if token:
@@ -58,27 +58,7 @@ def checkIfValidPlaylist(playlist_to_clean, playlists_dict):
 	else:
 		return False
 
-def getPlaylistTracksToken(username, playlist_public):
-	# if playlist_public: 
-	scope = 'playlist-read-private'
-
-	token = util.prompt_for_user_token(username, scope, client_id=secrets.CLIENT_ID, client_secret=secrets.CLIENT_SECRET, redirect_uri=secrets.REDIRECT_URI)
-
-	return token
-
-def getPlaylistModifyToken(username, playlist_public):
-	if playlist_public:
-		scope = "playlist-modify-public"
-	else:
-		scope = "playlist-modify-private"
-
-	token = util.prompt_for_user_token(username, scope, client_id=secrets.CLIENT_ID, client_secret=secrets.CLIENT_SECRET, redirect_uri=secrets.REDIRECT_URI)
-
-	return token
-
-def createPlaylist(username, playlist_to_clean):
-	token = getPlaylistModifyToken(username, playlist_public=False)
-
+def createPlaylist(username, token, playlist_to_clean):
 	new_playlist_name = playlist_to_clean + " CLEANED"
 
 	sp = spotipy.Spotify(auth=token)
@@ -86,8 +66,7 @@ def createPlaylist(username, playlist_to_clean):
 
 	return result['id']
 
-def addTracksToPlaylist(username, playlist_id, track_uris, playlist_public):
-	token = getPlaylistModifyToken(username, playlist_public=False)
+def addTracksToPlaylist(username, token, playlist_id, track_uris, playlist_public):
 	bearer_authorization = "Bearer " + token
 
 	if token:
@@ -112,7 +91,6 @@ def checkSearchResultForCleanTrack(result_tracks, search_track_name, search_trac
 	for result_track in result_tracks['items']:
 		result_track_artists = set(getTrackArtists(result_track['artists']))
 		if result_track['name'] == search_track_name and set(search_track_artists) == result_track_artists and result_track['explicit'] == False:
-			print("Found the clean version of " + search_track_name + "!!")
 			return result_track['uri']
 
 	print("Could not find the clean version of " + search_track_name + " :(")
@@ -153,10 +131,9 @@ def searchForCleanTracks(username, token, explicit_tracks):
 	return search_tracks_uris
 
 # Maybe change to filter tracks 
-def getExplicitTracks(username, playlist_name, playlist_id, clean_playlist_id, playlist_public):
+def getExplicitTracks(username, token, playlist_name, playlist_id, clean_playlist_id, playlist_public):
 	explicit_tracks_dict = {}
 	
-	token = getPlaylistTracksToken(username, playlist_public)
 	bearer_authorization = "Bearer " + token
 
 	if token:
@@ -187,7 +164,7 @@ def getExplicitTracks(username, playlist_name, playlist_id, clean_playlist_id, p
 		all_tracks_uris = clean_tracks_uris + search_tracks_uris
 
 		# TO DO: check for 100 track limit
-		addTracksToPlaylist(username, clean_playlist_id, all_tracks_uris, playlist_public)
+		addTracksToPlaylist(username, token, clean_playlist_id, all_tracks_uris, playlist_public)
 	else:
 		print("Invalid token for", username)
 		# Need to throw error here 
@@ -197,7 +174,9 @@ def getExplicitTracks(username, playlist_name, playlist_id, clean_playlist_id, p
 def main():
 	username = systemStart()
 
-	playlists_dict = getPlaylists(username)
+	token = getToken(username)
+
+	playlists_dict = getPlaylists(username, token)
 
 	print("")
 
@@ -209,9 +188,9 @@ def main():
 	print("Time to clean " + playlist_to_clean + ". Hang tight!")
 	print("")
 
-	clean_playlist_id = createPlaylist(username, playlist_to_clean)
+	clean_playlist_id = createPlaylist(username, token, playlist_to_clean)
 
-	getExplicitTracks(username, playlist_to_clean, playlists_dict[playlist_to_clean][0], clean_playlist_id, playlists_dict[playlist_to_clean][1])
+	getExplicitTracks(username, token, playlist_to_clean, playlists_dict[playlist_to_clean][0], clean_playlist_id, playlists_dict[playlist_to_clean][1])
 
 	print("Congrats! We added a cleaned "+ playlist_to_clean + " playlist to your Spotify account. Enjoy :)")
 

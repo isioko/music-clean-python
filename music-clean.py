@@ -1,4 +1,3 @@
-import sys
 import requests
 import json
 
@@ -11,14 +10,6 @@ class Playlists(object):
     def __init__(self, data):
 	    self.__dict__ = json.loads(data)
 
-def systemStart():
-	if len(sys.argv) > 1:
-	    username = sys.argv[1]
-	    return username
-	else:
-	    print("Usage: %s username" % (sys.argv[0],))
-	    sys.exit()
-
 def getToken(username):
 	scope = 'playlist-read-private playlist-read-collaborative playlist-read-private playlist-modify-public playlist-modify-private'
 
@@ -30,7 +21,6 @@ def getToken(username):
 def getPlaylists(username, token):
 	playlists_dict = {}
 
-	# token = getPlaylistsToken(username) 
 	bearer_authorization = "Bearer " + token
 
 	if token:
@@ -172,7 +162,11 @@ def getExplicitTracks(username, token, playlist_name, playlist_id, clean_playlis
 	return explicit_tracks_dict
 
 def main():
-	username = systemStart()
+	print("Welcome to music clean! We'll make sure any of your Spotify playlists are clean for whe you need them.")
+	print("")
+
+	username = input("What is your Spotify username? ")
+	print("")
 
 	token = getToken(username)
 
@@ -180,9 +174,10 @@ def main():
 
 	print("")
 
-	while True:
+	playlist_to_clean = input("Type the name of the playlist to clean: ")
+	while checkIfValidPlaylist(playlist_to_clean, playlists_dict) is False:
+		print("Oops! Invalid playlist. Please try again.")
 		playlist_to_clean = input("Type the name of the playlist to clean: ")
-		if checkIfValidPlaylist(playlist_to_clean, playlists_dict) is True: break
 
 	print("")
 	print("Time to clean " + playlist_to_clean + ". Hang tight!")
@@ -192,8 +187,8 @@ def main():
 
 	getExplicitTracks(username, token, playlist_to_clean, playlists_dict[playlist_to_clean][0], clean_playlist_id, playlists_dict[playlist_to_clean][1])
 
-	print("Congrats! We added a cleaned "+ playlist_to_clean + " playlist to your Spotify account. Enjoy :)")
-
+	print("")
+	print("Congrats! We added a cleaned " + playlist_to_clean + " playlist with the song we could find to your Spotify account. Enjoy :)")
 	  
 if __name__== "__main__":
 	main()

@@ -5,6 +5,8 @@ import math
 import spotipy
 import spotipy.util as util
 
+from datetime import datetime
+
 import secrets
 
 class Playlists(object):
@@ -45,7 +47,7 @@ def getPlaylists(username, token):
 	if token:
 		print("Here are your playlists:")
 
-		num_playlists_limit = 50 
+		num_playlists_limit = 50
 		num_playlists, playlists_dict = getPlaylistsAPICall(username, token, num_playlists_limit, 0, playlists_dict)
 
 		num_addtl_playlists_calls = math.ceil(num_playlists / num_playlists_limit) - 1
@@ -66,7 +68,7 @@ def checkIfValidPlaylist(playlist_to_clean, playlists_dict):
 		return False
 
 def createPlaylist(username, token, playlist_to_clean):
-	new_playlist_name = playlist_to_clean + " CLEANED"
+	new_playlist_name = playlist_to_clean + " CLEANED " + str(datetime.now())
 
 	sp = spotipy.Spotify(auth=token)
 	result = sp.user_playlist_create(username, new_playlist_name, public=False, description='')
@@ -95,10 +97,7 @@ def getTrackArtists(artists_json):
 	return artists
 
 def checkSearchResultForCleanTrack(result_tracks, search_track_name, search_track_artists):
-	# if search_track_name == "break up with your girlfriend, i'm bored": # take out this is a test
-	# 	print(result_tracks)
-
-	for result_track in result_tracks['items']:
+	for result_track in result_tracks:
 		result_track_artists = set(getTrackArtists(result_track['artists']))
 		if result_track['name'] == search_track_name and set(search_track_artists) == result_track_artists and result_track['explicit'] == False:
 			return result_track['uri']
@@ -118,33 +117,14 @@ def searchForCleanTracks(username, token, explicit_tracks):
 		for artist in track_artists:
 			track_artists_str += artist + ","
 
+		sp = spotipy.Spotify(auth=token)
 		q = "track:\"" + track_name + "\" artist:" + track_artists[0]
-		
-		# if track_name == "break up with your girlfriend, i'm bored": # take out this is a test
-		# 	q = "track:\"" + track_name + "\""
-		# 	sp = spotipy.Spotify(auth=token)
-		# 	result = sp.search(q)
-		# 	print(result)
-		
-		search_type = "track"
+		search_result = sp.search(q)
 
-		bearer_authorization = "Bearer " + token
+		clean_track_uri = checkSearchResultForCleanTrack(search_result['tracks']['items'], track_name, track_artists)
 
-		if token:
-			url = "https://api.spotify.com/v1/search"
-			headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': bearer_authorization}
-			params = {'q': q, 'type': search_type}
-			r = requests.get(url, headers=headers, params=params)
-
-			json_data = r.text
-			search_result_tracks = Playlists(json_data) # TO DO: make more general
-			clean_track_uri = checkSearchResultForCleanTrack(search_result_tracks.tracks, track_name, track_artists)
-
-			if clean_track_uri != None:
-				search_tracks_uris += clean_track_uri + ","
-		else:
-			print("Invalid token for", username)
-			# Need to throw error here 
+		if clean_track_uri != None:
+			search_tracks_uris += clean_track_uri + ","
 
 	return search_tracks_uris
 
@@ -216,7 +196,7 @@ def main():
 	getExplicitTracks(username, token, playlist_to_clean, playlists_dict[playlist_to_clean][0], clean_playlist_id, playlists_dict[playlist_to_clean][1])
 
 	print("")
-	print("Congrats! We added a cleaned " + playlist_to_clean + " playlist with the song we could find to your Spotify account. Enjoy :)")
+	print("Congrats! We added a cleaned " + playlist_to_clean + " playlist with the clean songs we could find to your Spotify account. Enjoy :)")
 	  
 if __name__== "__main__":
 	main()

@@ -1,5 +1,6 @@
 import requests
 import json
+import math
 
 import spotipy
 import spotipy.util as util
@@ -17,25 +18,41 @@ def getToken(username):
 
 	return token
 
-# TO DO: Update so that more than 20 playlists can be shown at a time
+def getPlaylistsAPICall(username, token, limit, offset, playlists_dict):
+	bearer_authorization = "Bearer " + token
+
+	url = "https://api.spotify.com/v1/users/" + username + "/playlists"
+	headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': bearer_authorization}
+
+	params = {'limit': limit, 'offset': offset}
+
+	r = requests.get(url, headers=headers, params=params)
+
+	json_data = r.text
+	playlists = Playlists(json_data) # fix this name to be more general 
+
+	for playlist in playlists.items:
+		playlists_dict[playlist['name']] = [playlist['id'], playlist['public']]
+		print(playlist['name'])
+
+	num_playlists = playlists.total
+
+	return num_playlists, playlists_dict
+
 def getPlaylists(username, token):
 	playlists_dict = {}
-
-	bearer_authorization = "Bearer " + token
 
 	if token:
 		print("Here are your playlists:")
 
-		url = "https://api.spotify.com/v1/users/" + username + "/playlists"
-		headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': bearer_authorization}
-		r = requests.get(url, headers=headers)
+		num_playlists_limit = 50 
+		num_playlists, playlists_dict = getPlaylistsAPICall(username, token, num_playlists_limit, 0, playlists_dict)
 
-		json_data = r.text
-		playlists = Playlists(json_data) # fix this name to be more general 
+		num_addtl_playlists_calls = math.ceil(num_playlists / num_playlists_limit) - 1
 
-		for playlist in playlists.items:
-			playlists_dict[playlist['name']] = [playlist['id'], playlist['public']]
-			print(playlist['name'])
+		for i in range(num_addtl_playlists_calls):
+			offset = num_playlists_limit + (num_playlists_limit * i)
+			_, playlists_dict = getPlaylistsAPICall(username, token, num_playlists_limit, offset, playlists_dict)
 	else:
 		print("Invalid token for", username)
 		# Need to throw error here 
@@ -78,12 +95,16 @@ def getTrackArtists(artists_json):
 	return artists
 
 def checkSearchResultForCleanTrack(result_tracks, search_track_name, search_track_artists):
+	# if search_track_name == "break up with your girlfriend, i'm bored": # take out this is a test
+	# 	print(result_tracks)
+
 	for result_track in result_tracks['items']:
 		result_track_artists = set(getTrackArtists(result_track['artists']))
 		if result_track['name'] == search_track_name and set(search_track_artists) == result_track_artists and result_track['explicit'] == False:
 			return result_track['uri']
 
 	print("Could not find the clean version of " + search_track_name + " :(")
+	
 	return None
 
 def searchForCleanTracks(username, token, explicit_tracks):
@@ -98,6 +119,13 @@ def searchForCleanTracks(username, token, explicit_tracks):
 			track_artists_str += artist + ","
 
 		q = "track:\"" + track_name + "\" artist:" + track_artists[0]
+		
+		# if track_name == "break up with your girlfriend, i'm bored": # take out this is a test
+		# 	q = "track:\"" + track_name + "\""
+		# 	sp = spotipy.Spotify(auth=token)
+		# 	result = sp.search(q)
+		# 	print(result)
+		
 		search_type = "track"
 
 		bearer_authorization = "Bearer " + token
@@ -121,6 +149,7 @@ def searchForCleanTracks(username, token, explicit_tracks):
 	return search_tracks_uris
 
 # Maybe change to filter tracks 
+# TO DO: Update so that more than XX tracks
 def getExplicitTracks(username, token, playlist_name, playlist_id, clean_playlist_id, playlist_public):
 	explicit_tracks_dict = {}
 	
@@ -132,7 +161,6 @@ def getExplicitTracks(username, token, playlist_name, playlist_id, clean_playlis
 		url = "https://api.spotify.com/v1/playlists/" + playlist_id + "/tracks"
 		headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': bearer_authorization}
 		r = requests.get(url, headers=headers)
-
 
 		json_data = r.text
 		tracks = Playlists(json_data) # fix this name to be more general 

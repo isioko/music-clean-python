@@ -9,6 +9,9 @@ from datetime import datetime
 
 import secrets
 
+NUM_PLAYLISTS_LIMIT = 50
+NUM_TRACKS_LIMIT = 100
+
 class Playlists(object):
     def __init__(self, data):
 	    self.__dict__ = json.loads(data)
@@ -20,13 +23,13 @@ def getToken(username):
 
 	return token
 
-def getPlaylistsAPICall(username, token, limit, offset, playlists_dict):
+def getPlaylistsAPICall(username, token, offset, playlists_dict):
 	bearer_authorization = "Bearer " + token
 
 	url = "https://api.spotify.com/v1/users/" + username + "/playlists"
 	headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': bearer_authorization}
 
-	params = {'limit': limit, 'offset': offset}
+	params = {'limit': NUM_PLAYLISTS_LIMIT, 'offset': offset}
 
 	r = requests.get(url, headers=headers, params=params)
 
@@ -47,14 +50,14 @@ def getPlaylists(username, token):
 	if token:
 		print("Here are your playlists:")
 
-		num_playlists_limit = 50
-		num_playlists, playlists_dict = getPlaylistsAPICall(username, token, num_playlists_limit, 0, playlists_dict)
+		
+		num_playlists, playlists_dict = getPlaylistsAPICall(username, token, 0, playlists_dict)
 
-		num_addtl_playlists_calls = math.ceil(num_playlists / num_playlists_limit) - 1
+		num_addtl_playlists_calls = math.ceil(num_playlists / NUM_PLAYLISTS_LIMIT) - 1
 
 		for i in range(num_addtl_playlists_calls):
-			offset = num_playlists_limit + (num_playlists_limit * i)
-			_, playlists_dict = getPlaylistsAPICall(username, token, num_playlists_limit, offset, playlists_dict)
+			offset = NUM_PLAYLISTS_LIMIT + (NUM_PLAYLISTS_LIMIT * i)
+			_, playlists_dict = getPlaylistsAPICall(username, token, offset, playlists_dict)
 	else:
 		print("Invalid token for", username)
 		# Need to throw error here 
@@ -82,7 +85,7 @@ def addTracksToPlaylist(username, token, playlist_id, track_uris, playlist_publi
 		url = "https://api.spotify.com/v1/playlists/" + playlist_id + "/tracks"
 		headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': bearer_authorization}
 		params = {'uris': track_uris}
-		r = requests.post(url, headers=headers, params=params)
+		r = requests.post(url, headers=headers, params=params) 
 
 		# TO DO: add a check to see if the addition was successful
 	else:
@@ -107,7 +110,7 @@ def checkSearchResultForCleanTrack(result_tracks, search_track_name, search_trac
 	return None
 
 def searchForCleanTracks(username, token, explicit_tracks):
-	search_tracks_uris = ""
+	search_tracks_uris = []
 
 	for track in explicit_tracks:
 		track_name = track[0]
@@ -124,13 +127,43 @@ def searchForCleanTracks(username, token, explicit_tracks):
 		clean_track_uri = checkSearchResultForCleanTrack(search_result['tracks']['items'], track_name, track_artists)
 
 		if clean_track_uri != None:
-			search_tracks_uris += clean_track_uri + ","
+			search_tracks_uris.append(clean_track_uri)
 
 	return search_tracks_uris
 
+def getPlaylistTracksAPICall(username, token, playlist_id, offset):
+	bearer_authorization = "Bearer " + token
+
+	url = "https://api.spotify.com/v1/playlists/" + playlist_id + "/tracks"
+	headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': bearer_authorization}
+	params = {'limit': NUM_TRACKS_LIMIT, 'offset': offset}
+	r = requests.get(url, headers=headers, params=params)
+
+	json_data = r.text
+	tracks = Playlists(json_data) # fix this name to be more general 
+
+	return tracks 
+
+def filterTracks(tracks, explicit_tracks, clean_tracks_uris):
+	for track in tracks.items:
+		print(track['track']['name'])
+		if track['track']['explicit']:
+			track_artists = getTrackArtists(track['track']['artists'])
+			explicit_tracks.append([track['track']['name'], track_artists])
+		else:
+			clean_tracks_uris.append(track['track']['uri'])
+
+	return explicit_tracks, clean_tracks_uris
+
+def convertTrackURIListToString(track_uris_list):
+	track_uris = ""
+	for uri in track_uris_list:
+		track_uris += uri + ","
+
+	return track_uris
+
 # Maybe change to filter tracks 
-# TO DO: Update so that more than XX tracks
-def getExplicitTracks(username, token, playlist_name, playlist_id, clean_playlist_id, playlist_public):
+def getTracks(username, token, playlist_name, playlist_id, clean_playlist_id, playlist_public):
 	explicit_tracks_dict = {}
 	
 	bearer_authorization = "Bearer " + token
@@ -138,31 +171,34 @@ def getExplicitTracks(username, token, playlist_name, playlist_id, clean_playlis
 	if token:
 		print("Here are the tracks in " + playlist_name + ":")
 
-		url = "https://api.spotify.com/v1/playlists/" + playlist_id + "/tracks"
-		headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': bearer_authorization}
-		r = requests.get(url, headers=headers)
-
-		json_data = r.text
-		tracks = Playlists(json_data) # fix this name to be more general 
-
 		explicit_tracks = [] # list of [track name, [track artists]]
-		clean_tracks_uris = ""
+		clean_tracks_uris = []
 
-		for track in tracks.items:
-			print(track['track']['name'])
-			if track['track']['explicit']:
-				track_artists = getTrackArtists(track['track']['artists'])
-				explicit_tracks.append([track['track']['name'], track_artists])
-			else:
-				clean_tracks_uris += track['track']['uri'] + ","
-		
-		print("")
+		tracks = getPlaylistTracksAPICall(username, token, playlist_id, 0)
+		num_tracks = tracks.total
+
+		explicit_tracks, clean_tracks_uris = filterTracks(tracks, explicit_tracks, clean_tracks_uris)
+
+		num_addtl_tracks_calls = math.ceil(num_tracks / NUM_TRACKS_LIMIT) - 1
+		for i in range(num_addtl_tracks_calls):
+			offset = NUM_TRACKS_LIMIT + (NUM_TRACKS_LIMIT * i)
+			tracks = getPlaylistTracksAPICall(username, token, playlist_id, offset)
+			explicit_tracks, clean_tracks_uris = filterTracks(tracks, explicit_tracks, clean_tracks_uris)
+
+		print(" ")
 
 		search_tracks_uris = searchForCleanTracks(username, token, explicit_tracks)
-		all_tracks_uris = clean_tracks_uris + search_tracks_uris
+		all_tracks_uris = search_tracks_uris + clean_tracks_uris
+		num_clean_tracks = len(all_tracks_uris)
 
-		# TO DO: check for 100 track limit
-		addTracksToPlaylist(username, token, clean_playlist_id, all_tracks_uris, playlist_public)
+		num_add_tracks_calls = math.ceil(num_tracks / NUM_TRACKS_LIMIT)
+		for i in range(num_add_tracks_calls):
+			if i == num_add_tracks_calls - 1:
+				track_uris = convertTrackURIListToString(all_tracks_uris[i*NUM_TRACKS_LIMIT:])
+			else:
+				track_uris = convertTrackURIListToString(all_tracks_uris[i*NUM_TRACKS_LIMIT: (i*NUM_TRACKS_LIMIT) + NUM_TRACKS_LIMIT])
+
+			addTracksToPlaylist(username, token, clean_playlist_id, track_uris, playlist_public)
 	else:
 		print("Invalid token for", username)
 		# Need to throw error here 
@@ -193,7 +229,7 @@ def main():
 
 	clean_playlist_id = createPlaylist(username, token, playlist_to_clean)
 
-	getExplicitTracks(username, token, playlist_to_clean, playlists_dict[playlist_to_clean][0], clean_playlist_id, playlists_dict[playlist_to_clean][1])
+	getTracks(username, token, playlist_to_clean, playlists_dict[playlist_to_clean][0], clean_playlist_id, playlists_dict[playlist_to_clean][1])
 
 	print("")
 	print("Congrats! We added a cleaned " + playlist_to_clean + " playlist with the clean songs we could find to your Spotify account. Enjoy :)")

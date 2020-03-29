@@ -1,6 +1,12 @@
 Helpful links:
 
+### Spotify implementation
 Spotify Web API documentation -> https://developer.spotify.com/documentation/web-api/reference/
 Spotipy library documentation -> https://spotipy.readthedocs.io/en/2.9.0/
 Python Requests -> https://realpython.com/python-requests/#the-get-request
 Python JSON parsing -> https://linuxconfig.org/how-to-parse-data-from-json-into-python
+
+### Creating the front end
+Setting up virtualenv on Windows -> https://www.geeksforgeeks.org/creating-python-virtual-environment-windows-linux/
+Flask by example (setting up Flask) -> https://realpython.com/flask-by-example-part-1-project-setup/
+Building Flask front end for scripts -> https://netdevops.me/2016/04/building-web-front-end-for-python-scripts-with-flask/

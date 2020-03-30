@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3>Here's a list of all your Spotify playlists.</h3>
+	<ol>
+		{% for playlist in playlists %}
+		<li> {{ playlist }} </li>
+		{% endfor %}
+	</ol>
+
+<h3> Which playlist # would you like to clean? </h3>
+	<form action="{{ url_for('playlists') }}" method="POST">
+		<div class="form-group">
+			 
+			<label for="PlaylistNumbers">
+				Enter the playlist # to clean
+			</label>
+			<input type="text" class="form-control" id="PlaylistToClean" name="playlistToClean">
+		</div>
+		<button type="submit" class="btn btn-primary">
+			Submit
+		</button>
+	</form>
+
+{% endblock %}

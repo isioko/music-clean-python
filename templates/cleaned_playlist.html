@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3>Here's a list of all the tracks in {{ playlistName }}:</h3>
+	<ul>
+		{% for track in allTracks %}
+		<li> {{ track }} </li>
+		{% endfor %}
+	</ul>
+
+<h3>We couldn't find a clean version of the following tracks:</h3>
+	<ul>
+		{% for track in notCleanTracks %}
+		<li> {{ track }} </li>
+		{% endfor %}
+	</ul>
+
+{% endblock %}

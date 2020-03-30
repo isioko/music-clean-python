@@ -86,7 +86,7 @@ def playlists():
 		user_playlists.setCouldNotCleanTracks(could_not_clean_tracks)
 
 		return redirect(url_for('cleanedPlaylist'))
-		
+
 @app.route("/cleanedplaylist/", methods=["GET"])
 def cleanedPlaylist():
 	return render_template("cleaned_playlist.html", playlistName=user_playlists.playlist_to_clean_name, allTracks=user_playlists.all_tracks, notCleanTracks=user_playlists.could_not_clean_tracks)
@@ -95,7 +95,6 @@ def cleanedPlaylist():
 def callback():
 	# sem.acquire()
 	getToken(request.args['code'])
-	print("clean token", clean.getToken())
 	# sem.release()
 
 	# sem.acquire()

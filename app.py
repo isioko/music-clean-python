@@ -20,6 +20,7 @@ user_playlists = classes.Playlists()
 
 @app.route("/", methods=["GET", "POST"])
 def start():
+	print(secrets.REDIRECT_URI)
 	if request.method == "GET":
 		return render_template("home.html")
 

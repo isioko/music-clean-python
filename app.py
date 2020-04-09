@@ -94,9 +94,7 @@ def cleanedPlaylist():
 
 @app.route("/callback/", methods=["GET"])
 def callback():
-	# getToken(request.args['code'])
-
-	return "callback"
+	getToken(request.args['code'])
 
 	return redirect(url_for('playlists'))
 

@@ -7,8 +7,6 @@ import spotipy.util as util
 
 from datetime import datetime
 from urllib.request import urlopen
-import webbrowser
-from selenium import webdriver
 
 import six
 import six.moves.urllib.parse as urllibparse
@@ -53,7 +51,7 @@ def getToken(username):
 	r = requests.get(get_authorize_url())
 	print("get token request", r.url)
 	# webbrowser.open(r.url)
-	urlopen(r.url)
+	# urlopen(r.url)
 
 
 	# return token

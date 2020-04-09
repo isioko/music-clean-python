@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3>
+	Welcome to music clean!
+</h3>
+<p>
+	We'll make sure your Spotify playlists are clean (i.e. no explicit tracks) for when you need them!
+</p>
+
+<form action="{{ url_for('username') }}" method="POST">
+	<div class="form-group">
+		 
+		<label for="SpotifyUsername">
+			Enter your Spotify username
+		</label>
+		<input type="text" class="form-control" id="SpotifyUsername" name="spotifyUsername">
+	</div>
+	<button type="submit" class="btn btn-primary">
+		Submit
+	</button>
+</form>
+
+{% endblock %}

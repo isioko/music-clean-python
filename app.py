@@ -17,7 +17,6 @@ user_playlists = classes.Playlists()
 
 @app.route("/", methods=["GET", "POST"])
 def start():
-	print(secrets.REDIRECT_URI)
 	if request.method == "GET":
 		print("music clean authorize url", musicclean.get_authorize_url())
 		return render_template("home.html", auth_url=musicclean.get_authorize_url())
@@ -27,7 +26,16 @@ def start():
 		clean.setUsername(username)
 		token = musicclean.getToken(username)
 
-	return "hello world"
+@app.route("/username", methods=["GET", "POST"])
+def username():
+	if request.method == "GET":
+		return render_template("username.html")
+
+	if request.method == "POST":
+		username = request.form['spotifyUsername']
+		clean.setUsername(username)
+
+		return redirect(url_for('playlists'))
 
 def make_authorization_headers(client_id, client_secret):
 	auth_str = client_id + ":" + client_secret
@@ -96,7 +104,7 @@ def cleanedPlaylist():
 def callback():
 	getToken(request.args['code'])
 
-	return redirect(url_for('playlists'))
+	return redirect(url_for('username'))
 
 if __name__ == '__main__':
 	# clean = MusicClean()

@@ -94,13 +94,11 @@ def cleanedPlaylist():
 
 @app.route("/callback/", methods=["GET"])
 def callback():
-	# sem.acquire()
-	getToken(request.args['code'])
-	# sem.release()
+	# getToken(request.args['code'])
 
-	# sem.acquire()
+	return "callback"
+
 	return redirect(url_for('playlists'))
-	# sem.release()
 
 if __name__ == '__main__':
 	# clean = MusicClean()

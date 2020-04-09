@@ -9,22 +9,6 @@
 	We'll make sure your Spotify playlists are clean (i.e. no explicit tracks) for when you need them!
 </p>
 
-<a href="{{ auth_url }}">Go Here</a>
-
-<!-- <form action="{{ url_for('start') }}" method="POST"> -->
-<form action="{{ auth_url }}">
-	<div class="form-group">
-		 
-		<label for="SpotifyUsername">
-			Enter your Spotify username
-		</label>
-		<input type="text" class="form-control" id="SpotifyUsername" name="spotifyUsername">
-	</div>
-	<button type="submit" class="btn btn-primary">
-		Submit
-	</button>
-</form>
-
-
+<a href="{{ auth_url }}">Click here to authorize your Spotify account</a>
 
 {% endblock %}

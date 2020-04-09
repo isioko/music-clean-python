@@ -21,10 +21,10 @@ def start():
 		print("music clean authorize url", musicclean.get_authorize_url())
 		return render_template("home.html", auth_url=musicclean.get_authorize_url())
 
-	if request.method == "POST":
-		username = request.form['spotifyUsername']
-		clean.setUsername(username)
-		token = musicclean.getToken(username)
+	# if request.method == "POST":
+	# 	username = request.form['spotifyUsername']
+	# 	clean.setUsername(username)
+	# 	token = musicclean.getToken(username)
 
 @app.route("/username", methods=["GET", "POST"])
 def username():

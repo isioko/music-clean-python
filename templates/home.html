@@ -8,7 +8,11 @@
 <p>
 	We'll make sure your Spotify playlists are clean (i.e. no explicit tracks) for when you need them!
 </p>
-<form action="{{ url_for('start') }}" method="POST">
+
+<a href="{{ auth_url }}">Go Here</a>
+
+<!-- <form action="{{ url_for('start') }}" method="POST"> -->
+<form action="{{ auth_url }}">
 	<div class="form-group">
 		 
 		<label for="SpotifyUsername">
@@ -20,5 +24,7 @@
 		Submit
 	</button>
 </form>
+
+
 
 {% endblock %}

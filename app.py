@@ -19,7 +19,8 @@ user_playlists = classes.Playlists()
 def start():
 	print(secrets.REDIRECT_URI)
 	if request.method == "GET":
-		return render_template("home.html")
+		print("music clean authorize url", musicclean.get_authorize_url())
+		return render_template("home.html", auth_url=musicclean.get_authorize_url())
 
 	if request.method == "POST":
 		username = request.form['spotifyUsername']

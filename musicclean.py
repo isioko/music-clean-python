@@ -8,6 +8,7 @@ import spotipy.util as util
 from datetime import datetime
 from urllib.request import urlopen
 import webbrowser
+from selenium import webdriver
 
 import six
 import six.moves.urllib.parse as urllibparse
@@ -23,9 +24,12 @@ class Playlists(object):
     def __init__(self, data):
 	    self.__dict__ = json.loads(data)
 
-def get_authorize_url(scope):
+def get_authorize_url():
     """ Gets the URL to use to authorize this app
     """
+    
+    scope = 'playlist-read-private playlist-read-collaborative playlist-read-private playlist-modify-public playlist-modify-private'
+
     payload = {
         "client_id": secrets.CLIENT_ID,
         "response_type": "code",
@@ -46,11 +50,11 @@ def getToken(username):
 	# url = "https://accounts.spotify.com/authorize?client_id=5e0aa7e9544308505ab72bf04af06&response_type=code&redirect_uri=http://127.0.0.1:5000/callback/&scope=f53edb5d2c3a4b7da4d287a85ec77b2e"
 	params = {'client_id': secrets.CLIENT_ID, 'reponse_type': 'code', 'redirect_uri': secrets.REDIRECT_URI, 'scope': scope}
 
-	r = requests.get(get_authorize_url(scope))
+	r = requests.get(get_authorize_url())
 	print("get token request", r.url)
-	webbrowser.open(r.url)
-	# finalurl = res.geturl()
-	# print("final url", finalurl)
+	# webbrowser.open(r.url)
+	urlopen(r.url)
+
 
 	# return token
 

@@ -9,9 +9,6 @@ import musicclean
 import secrets
 import classes
 
-USERNAME = None
-TOKEN = None
-
 sem = threading.Semaphore()
 
 app = Flask(__name__)
@@ -28,6 +25,7 @@ def start():
 		username = request.form['spotifyUsername']
 		clean.setUsername(username)
 		token = musicclean.getToken(username)
+		print("token", token)
 
 def make_authorization_headers(client_id, client_secret):
 	auth_str = client_id + ":" + client_secret

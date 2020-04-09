@@ -25,7 +25,8 @@ def start():
 		username = request.form['spotifyUsername']
 		clean.setUsername(username)
 		token = musicclean.getToken(username)
-		print("token", token)
+
+	return "hello world"
 
 def make_authorization_headers(client_id, client_secret):
 	auth_str = client_id + ":" + client_secret

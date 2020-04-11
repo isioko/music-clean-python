@@ -63,6 +63,7 @@ def playlists():
 		playlists_list = []
 		for playlist in playlists_dict:
 			playlists_list.append(playlist)
+		print("USERNAME", clean.username, "PLAYLISTS LIST", playlists_list)
 		user_playlists.setPlaylistsList(playlists_list)
 		user_playlists.setNumPlaylists(len(playlists_list))
 		

@@ -13,6 +13,10 @@ class MusicClean():
 	def setTokenInfo(self, token_info):
 		self.token_info = token_info
 
+	def reset(self):
+		self.username = None
+		self.token = None
+		self.token_info = None
 
 class Playlists():
 	def __init__(self):
@@ -54,3 +58,13 @@ class Playlists():
 			return True
 		else:
 			return False
+
+	def reset(self):
+		self.playlists_dict = {}
+		self.playlists_list = []
+		self.num_playlists = None
+		self.playlist_to_clean_number = None
+		self.playlist_to_clean_id = None
+		self.playlist_to_clean_name = None
+		self.all_tracks = []
+		self.could_not_clean_tracks = []

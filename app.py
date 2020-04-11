@@ -12,9 +12,14 @@ app = Flask(__name__)
 clean = classes.MusicClean()
 user_playlists = classes.Playlists()
 
+def startup():
+	clean.reset()
+	user_playlists.reset()
+
 @app.route("/", methods=["GET", "POST"])
 def start():
 	if request.method == "GET":
+		startup()
 		return render_template("home.html", auth_url=musicclean.get_authorize_url())
 
 def is_token_expired(token_info):

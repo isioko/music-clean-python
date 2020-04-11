@@ -40,21 +40,12 @@ def get_authorize_url():
     return "%s?%s" % ("https://accounts.spotify.com/authorize", urlparams)
 
 def getToken(username):
-	scope = 'playlist-read-private playlist-read-collaborative playlist-read-private playlist-modify-public playlist-modify-private'
-
-	# token = util.prompt_for_user_token(username, scope, client_id=secrets.CLIENT_ID, client_secret=secrets.CLIENT_SECRET, redirect_uri=secrets.REDIRECT_URI)
+	scope = 'playlist-read-private playlist-read-collaborative playlist-read-private playlist-modify-public playlist-modify-private user-read-email user-read-private'
 
 	url = "https://accounts.spotify.com/authorize"
-	# url = "https://accounts.spotify.com/authorize?client_id=5e0aa7e9544308505ab72bf04af06&response_type=code&redirect_uri=http://127.0.0.1:5000/callback/&scope=f53edb5d2c3a4b7da4d287a85ec77b2e"
 	params = {'client_id': secrets.CLIENT_ID, 'reponse_type': 'code', 'redirect_uri': secrets.REDIRECT_URI, 'scope': scope}
 
 	r = requests.get(get_authorize_url())
-	print("get token request", r.url)
-	# webbrowser.open(r.url)
-	# urlopen(r.url)
-
-
-	# return token
 
 def getPlaylistsAPICall(username, token, offset, playlists_dict):
 	bearer_authorization = "Bearer " + token
@@ -71,7 +62,6 @@ def getPlaylistsAPICall(username, token, offset, playlists_dict):
 
 	for playlist in playlists.items:
 		playlists_dict[playlist['name']] = [playlist['id'], playlist['public']]
-		print(">> > " + playlist['name'])
 
 	num_playlists = playlists.total
 
@@ -142,7 +132,6 @@ def checkSearchResultForCleanTrack(result_tracks, search_track_name, search_trac
 def searchForCleanTracks(username, token, explicit_tracks, could_not_clean_tracks):
 	search_tracks_uris = []
 
-	print(">> Couldn't find the clean version of the following tracks:")
 	for track in explicit_tracks:
 		track_name = track[0]
 		track_artists = track[1]
@@ -160,10 +149,7 @@ def searchForCleanTracks(username, token, explicit_tracks, could_not_clean_track
 		if clean_track_uri != None:
 			search_tracks_uris.append(clean_track_uri)
 		else:
-			print(">> > " + track_name)
 			could_not_clean_tracks.append(track_name)
-			print("could_not_clean_tracks", could_not_clean_tracks)
-
 
 	return search_tracks_uris, could_not_clean_tracks
 
@@ -182,7 +168,6 @@ def getPlaylistTracksAPICall(username, token, playlist_id, offset):
 
 def filterTracks(tracks, explicit_tracks, clean_tracks_uris, all_tracks):
 	for track in tracks.items:
-		print(">> > " + track['track']['name'])
 		all_tracks.append(track['track']['name'])
 		if track['track']['explicit']:
 			track_artists = getTrackArtists(track['track']['artists'])
@@ -208,8 +193,6 @@ def getTracks(username, token, playlist_name, playlist_id, clean_playlist_id, pl
 	bearer_authorization = "Bearer " + token
 
 	if token:
-		print(">> Here are the tracks in " + playlist_name + ":")
-
 		explicit_tracks = [] # list of [track name, [track artists]]
 		clean_tracks_uris = []
 
@@ -223,8 +206,6 @@ def getTracks(username, token, playlist_name, playlist_id, clean_playlist_id, pl
 			offset = NUM_TRACKS_LIMIT + (NUM_TRACKS_LIMIT * i)
 			tracks = getPlaylistTracksAPICall(username, token, playlist_id, offset)
 			explicit_tracks, clean_tracks_uris, all_tracks = filterTracks(tracks, explicit_tracks, clean_tracks_uris, all_tracks)
-
-		print("")
 
 		search_tracks_uris, could_not_clean_tracks = searchForCleanTracks(username, token, explicit_tracks, could_not_clean_tracks)
 		all_tracks_uris = search_tracks_uris + clean_tracks_uris

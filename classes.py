@@ -2,6 +2,7 @@ class MusicClean():
 	def __init__(self):
 		self.username = None
 		self.token = None
+		self.token_info = None
 
 	def setUsername(self, username):
 		self.username = username
@@ -9,11 +10,9 @@ class MusicClean():
 	def setToken(self, token):
 		self.token = token
 
-	def getUsername(self):
-		return self.username
+	def setTokenInfo(self, token_info):
+		self.token_info = token_info
 
-	def getToken(self):
-		return self.token
 
 class Playlists():
 	def __init__(self):

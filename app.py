@@ -2,14 +2,11 @@ import os
 from flask import Flask, render_template, request, redirect, url_for
 import requests 
 import base64 
-import threading
 import time
 
 import musicclean
 import secrets
 import classes
-
-sem = threading.Semaphore()
 
 app = Flask(__name__)
 clean = classes.MusicClean()
@@ -18,24 +15,11 @@ user_playlists = classes.Playlists()
 @app.route("/", methods=["GET", "POST"])
 def start():
 	if request.method == "GET":
-		print("music clean authorize url", musicclean.get_authorize_url())
 		return render_template("home.html", auth_url=musicclean.get_authorize_url())
 
-	# if request.method == "POST":
-	# 	username = request.form['spotifyUsername']
-	# 	clean.setUsername(username)
-	# 	token = musicclean.getToken(username)
-
-@app.route("/username", methods=["GET", "POST"])
-def username():
-	if request.method == "GET":
-		return render_template("username.html")
-
-	if request.method == "POST":
-		username = request.form['spotifyUsername']
-		clean.setUsername(username)
-
-		return redirect(url_for('playlists'))
+def is_token_expired(token_info):
+    now = int(time.time())
+    return token_info["expires_at"] - now < 60
 
 def make_authorization_headers(client_id, client_secret):
 	auth_str = client_id + ":" + client_secret
@@ -56,7 +40,11 @@ def getToken(code):
 	if response.status_code == 200:
 		token_info = response.json()
 		token = token_info['access_token']
+		print("TOKEN", token)
+		print("TOKEN INFO", token_info)
+		
 		clean.setToken(token)
+		clean.setTokenInfo(token_info)
 	else:
 		print("Error retrieving token")
 
@@ -76,18 +64,12 @@ def playlists():
 		return render_template("playlists.html", playlists=playlists_list)
 
 	if request.method == "POST":
-		playlist_to_clean_num = int(request.form['playlistToClean']) # check if can be converted to int
+		playlist_to_clean_num = int(request.form['playlistToClean']) # need to check if can be converted to int
 		playlist_to_clean_name = user_playlists.playlists_list[playlist_to_clean_num-1]
 
 		user_playlists.setPlaylistToCleanNum(playlist_to_clean_num)
 		user_playlists.setPlaylistToCleanID(user_playlists.playlists_dict[user_playlists.playlists_list[playlist_to_clean_num-1]][0])
 		user_playlists.setPlaylistToCleanName(playlist_to_clean_name)
-		
-		# if user_playlists.isValidPlaylistNum(playlist_to_clean_num):
-			
-		# else:
-		# 	print("Not a valid playlist number")
-		# 	# throw error here
 
 		clean_playlist_id = musicclean.createPlaylist(clean.username, clean.token, playlist_to_clean_name)
 		_, all_tracks, could_not_clean_tracks = musicclean.getTracks(clean.username, clean.token, playlist_to_clean_name, user_playlists.playlists_dict[playlist_to_clean_name][0], clean_playlist_id, user_playlists.playlists_dict[playlist_to_clean_name][1])
@@ -100,12 +82,31 @@ def playlists():
 def cleanedPlaylist():
 	return render_template("cleaned_playlist.html", playlistName=user_playlists.playlist_to_clean_name, allTracks=user_playlists.all_tracks, notCleanTracks=user_playlists.could_not_clean_tracks)
 
+def getUsername():
+	headers = {
+		"Authorization": "Bearer " + clean.token,
+	}
+
+	url = "https://api.spotify.com/v1/me"
+
+	response = requests.get(url, headers=headers)
+	if response.status_code == 200:
+		user = response.json()
+		clean.setUsername(user['id'])
+	else:
+		print("Error retrieving user")
+
 @app.route("/callback/", methods=["GET"])
 def callback():
-	getToken(request.args['code'])
+	if clean.token is None:
+		getToken(request.args['code'])
+	elif clean.token is not None and is_token_expired(clean.token_info):
+		# refresh token here
+		print("need to refresh")
 
-	return redirect(url_for('username'))
+	getUsername()
+
+	return redirect(url_for('playlists'))
 
 if __name__ == '__main__':
-	# clean = MusicClean()
 	app.run(debug=True)

@@ -71,8 +71,6 @@ def getPlaylists(username, token):
 	playlists_dict = {}
 
 	if token:
-		print(">> Here are your playlists:")
-
 		num_playlists, playlists_dict = getPlaylistsAPICall(username, token, 0, playlists_dict)
 
 		num_addtl_playlists_calls = math.ceil(num_playlists / NUM_PLAYLISTS_LIMIT) - 1

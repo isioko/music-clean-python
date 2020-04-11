@@ -19,7 +19,7 @@ def start():
 
 def is_token_expired(token_info):
     now = int(time.time())
-    return token_info["expires_at"] - now < 60
+    return token_info["expires_in"] - now < 60
 
 def make_authorization_headers(client_id, client_secret):
 	auth_str = client_id + ":" + client_secret

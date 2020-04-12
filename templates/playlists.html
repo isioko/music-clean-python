@@ -5,9 +5,7 @@
 <div id="main">
 
 	<!-- Content -->
-		<section id="content" class="main">
-			<span class="image main"><img src="images/pic04.jpg" alt="" /></span>
-			
+		<section id="content" class="main">			
 			<h3>select a Spotify playlist to clean:</h3>
 			<form action="{{ url_for('playlists') }}" method="POST">
 				{% for playlistID, playlist in playlists.items() %}

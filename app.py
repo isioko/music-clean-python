@@ -183,6 +183,7 @@ def callback():
 	# 		print("Needed to refresh token")
 
 	getUsername()
+	print("yay")
 
 	if debug:
 		print("Got username:", session.get("username"))

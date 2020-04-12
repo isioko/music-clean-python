@@ -17,6 +17,10 @@ user_playlists = classes.Playlists()
 
 debug = True
 
+@app.route("/elements")
+def elements():
+	return render_template("elements.html")
+
 @app.route("/", methods=["GET", "POST"])
 def start():
 	if request.method == "GET":
@@ -76,47 +80,43 @@ def playlists():
 		if debug:
 			print("ROUTE: PLAYLISTS GET")
 			
-		return render_template("playlists.html", playlists=playlists_list, validNum="True")
+		return render_template("playlists.html", playlists=playlists_dict, validNum="True")
 
 	if request.method == "POST":
 		if debug:
 			print("ROUTE: PLAYLISTS POST")
-		
-		while True:	
-			playlists_list = session["playlists_list"]
-			try:
-				playlist_to_clean_num = int(request.form['playlistToClean']) # need to check if can be converted to int
-			except ValueError:
-				return render_template("playlists.html", playlists=playlists_list, validNum="False")
-			
-			if playlist_to_clean_num > session.get("num_playlists"):
-				return render_template("playlists.html", playlists=playlists_list, validNum="False")
-			else:
-				break
-		
-		if session.get("playlists_list") is not None:
-			playlists_list = session.get("playlists_list")
-			playlist_to_clean_name = playlists_list[playlist_to_clean_num-1]
-		else:
-			# throw error
-			playlist_to_clean_name = None
 
-		if session.get("playlists_dict") is not None:
-			playlists_dict = session.get("playlists_dict")
-			playlists_list = session.get("playlists_list")
-			playlist_to_clean_id = playlists_dict[playlists_list[playlist_to_clean_num-1]][0]
-		else:
-			# throw error
-			playlist_to_clean_id = None
+		playlists_dict = session.get("playlists_dict")
 
-		session["playlist_to_clean_num"] = playlist_to_clean_num
+		playlist_to_clean_id = request.form['select-playlist']
+		playlist_to_clean_name = playlists_dict[playlist_to_clean_id]
+
+		print("playlist_to_clean_id", playlist_to_clean_id)
+
+	
+		# if session.get("playlists_list") is not None:
+		# 	playlists_list = session.get("playlists_list")
+		# 	playlist_to_clean_name = playlists_list[playlist_to_clean_num-1]
+		# else:
+		# 	# throw error
+		# 	playlist_to_clean_name = None
+
+		# if session.get("playlists_dict") is not None:
+		# 	playlists_dict = session.get("playlists_dict")
+		# 	playlists_list = session.get("playlists_list")
+		# 	playlist_to_clean_id = playlists_dict[playlists_list[playlist_to_clean_num-1]][0]
+		# else:
+		# 	# throw error
+		# 	playlist_to_clean_id = None
+
+		# session["playlist_to_clean_num"] = playlist_to_clean_num
 		session["playlist_to_clean_name"] = playlist_to_clean_name
 		session["playlist_to_clean_id"] = playlist_to_clean_id
 
 		clean_playlist_id = musicclean.createPlaylist(session.get("username"), session.get("token"), playlist_to_clean_name)
 
 		playlists_dict = session.get("playlists_dict")
-		_, all_tracks, could_not_clean_tracks = musicclean.getTracks(session.get("username"), session.get("token"), playlist_to_clean_name, playlists_dict[playlist_to_clean_name][0], clean_playlist_id, playlists_dict[playlist_to_clean_name][1])
+		_, all_tracks, could_not_clean_tracks = musicclean.getTracks(session.get("username"), session.get("token"), playlist_to_clean_name, playlist_to_clean_id, clean_playlist_id, False)
 		session["all_tracks"] = all_tracks
 		session["could_not_clean_tracks"] = could_not_clean_tracks
 

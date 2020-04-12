@@ -16,11 +16,6 @@ import secrets
 NUM_PLAYLISTS_LIMIT = 50
 NUM_TRACKS_LIMIT = 100
 
-TOKEN = None
-
-class Playlists(object):
-    def __init__(self, data):
-	    self.__dict__ = json.loads(data)
 
 def get_authorize_url():
     """ Gets the URL to use to authorize this app
@@ -57,13 +52,13 @@ def getPlaylistsAPICall(username, token, offset, playlists_dict):
 
 	r = requests.get(url, headers=headers, params=params)
 
-	json_data = r.text
-	playlists = Playlists(json_data) # fix this name to be more general 
+	playlists = r.json()
+	print(playlists.items)
 
-	for playlist in playlists.items:
-		playlists_dict[playlist['name']] = [playlist['id'], playlist['public']]
+	for playlist in playlists["items"]:
+		playlists_dict[playlist['id']] = playlist['name']
 
-	num_playlists = playlists.total
+	num_playlists = playlists["total"]
 
 	return num_playlists, playlists_dict
 
@@ -159,13 +154,12 @@ def getPlaylistTracksAPICall(username, token, playlist_id, offset):
 	params = {'limit': NUM_TRACKS_LIMIT, 'offset': offset}
 	r = requests.get(url, headers=headers, params=params)
 
-	json_data = r.text
-	tracks = Playlists(json_data) # fix this name to be more general 
+	tracks = r.json()
 
 	return tracks 
 
 def filterTracks(tracks, explicit_tracks, clean_tracks_uris, all_tracks):
-	for track in tracks.items:
+	for track in tracks["items"]:
 		all_tracks.append(track['track']['name'])
 		if track['track']['explicit']:
 			track_artists = getTrackArtists(track['track']['artists'])
@@ -195,7 +189,7 @@ def getTracks(username, token, playlist_name, playlist_id, clean_playlist_id, pl
 		clean_tracks_uris = []
 
 		tracks = getPlaylistTracksAPICall(username, token, playlist_id, 0)
-		num_tracks = tracks.total
+		num_tracks = tracks["total"]
 
 		explicit_tracks, clean_tracks_uris, all_tracks = filterTracks(tracks, explicit_tracks, clean_tracks_uris, all_tracks)
 
@@ -222,47 +216,3 @@ def getTracks(username, token, playlist_name, playlist_id, clean_playlist_id, pl
 		# Need to throw error here 
 
 	return explicit_tracks_dict, all_tracks, could_not_clean_tracks
-
-def main():
-	print(">> Welcome to music clean! We'll make sure any of your Spotify playlists are clean (i.e. no explicit tracks) for when you need them.")
-	print("")
-
-	username = input(">> What is your Spotify username? ")
-	print("")
-
-	token = getToken(username)
-
-	# while True:
-	# 	playlists_dict = getPlaylists(username, token)
-
-	# 	print("")
-
-	# 	playlist_to_clean = input(">> Type the name of the playlist to clean: ")
-	# 	while checkIfValidPlaylist(playlist_to_clean, playlists_dict) is False:
-	# 		print(">> Oops! Invalid playlist. Please try again.")
-	# 		playlist_to_clean = input(">> Type the name of the playlist to clean: ")
-
-	# 	print("")
-	# 	print(">> Time to clean " + playlist_to_clean + ". Hang tight!")
-	# 	print("")
-
-	# 	clean_playlist_id = createPlaylist(username, token, playlist_to_clean)
-
-	# 	getTracks(username, token, playlist_to_clean, playlists_dict[playlist_to_clean][0], clean_playlist_id, playlists_dict[playlist_to_clean][1])
-
-	# 	print("")
-	# 	print(">> Congrats! We added a cleaned " + playlist_to_clean + " playlist with the clean songs we could find to your Spotify account. Enjoy :)")
-	# 	print("")
-
-	# 	cont = input(">> Would you like to clean another playlist? (type yes or no) ")
-	# 	while cont.lower() != "no" and cont.lower() != "yes":
-	# 		print(">> Oops! Invalid entry. Please try again.")
-	# 		cont = input(">> Would you like to clean another playlist? (type yes or no) ")
-	# 	print("")
-
-	# 	if cont.lower() == "no":
-	# 		print(">> Thanks for using music clean - goodbye!!")
-	# 		break
-		
-if __name__== "__main__":
-	main()

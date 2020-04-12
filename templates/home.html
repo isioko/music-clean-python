@@ -2,13 +2,12 @@
 
 {% block content %}
 
-<h3>
-	Welcome to music clean!
-</h3>
-<p>
-	We'll make sure your Spotify playlists are clean (i.e. no explicit tracks) for when you need them!
-</p>
+<header id="header">
 
-<a href="{{ auth_url }}">Click here to authorize your Spotify account</a>
+	<a href="{{ auth_url }}">
+		<img alt="Spotify connect button" src={{ url_for('static', filename="css/images/spotifyconnectbutton.png") }} class="responsive"
+		width=300 height=55>
+	</a>
+</header>
 
 {% endblock %}

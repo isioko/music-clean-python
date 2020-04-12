@@ -1,34 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE HTML>
+<!--
+	Stellar by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>music clean</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href={{ url_for('static', filename="css/main.css") }} />
+		<noscript><link rel="stylesheet" href={{ url_for('static', filename="css/noscript.css") }} /></noscript>
+	</head>
+	<body class="is-preload">
 
-    <title>music clean</title>
+		<!-- Wrapper -->
+			<div id="wrapper">
 
-    <meta name="description" content="Source code generated using layoutit.com">
-    <meta name="author" content="LayoutIt!">
+				<!-- Header -->
+					<header id="header">
+						<h1>music clean</h1>
+						<p>we'll make sure your Spotify playlists are clean (i.e. no explicit tracks) for when you need them!</p>
+					</header>
 
-    <link rel="stylesheet" href={{ url_for('static', filename="css/bootstrap.min.css")}}/>
-    <link rel="stylesheet" href={{ url_for('static', filename="css/style.css") }}/>
+					{% block content %}
+					{% endblock %}
 
-  </head>
-  <body>
+				<!-- Footer -->
+					<footer id="footer">
+						<section>
+							<h2>About</h2>
+							<p>Sed lorem ipsum dolor sit amet et nullam consequat feugiat consequat magna adipiscing tempus etiam dolore veroeros. eget dapibus mauris. </p>
+						</section>
+						<section>
+							<h2>Contact</h2>
+							<dl class="alt">
+								<dt>Email</dt>
+								<dd><a href="#">isi.okojie@gmail.com</a></dd>
+							</dl>
+							<ul class="icons">
+								<li><a href="https://github.com/isioko/music-clean-python" class="icon brands fa-github alt"><span class="label">GitHub</span></a></li>
+							</ul>
+						</section>
+						<p class="copyright">&copy; music clean. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+					</footer>
 
-    <div class="container-fluid">
-	<div class="row">
-		<div class="col-md-12">
+			</div>
 
-			{% block content %}
-			{% endblock %}
-			
-		</div>
-	</div>
-</div>
+		<!-- Scripts -->
+			<script src="static/js/jquery.min.js"></script>
+			<script src="static/js/jquery.scrollex.min.js"></script>
+			<script src="static/js/jquery.scrolly.min.js"></script>
+			<script src="static/js/browser.min.js"></script>
+			<script src="static/js/breakpoints.min.js"></script>
+			<script src="static/js/util.js"></script>
+			<script src="static/js/main.js"></script>
 
-    <script src="static/js/jquery.min.js"></script>
-    <script src="static/js/bootstrap.min.js"></script>
-    <script src="static/js/scripts.js"></script>
-  </body>
+	</body>
 </html>

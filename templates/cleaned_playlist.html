@@ -2,18 +2,25 @@
 
 {% block content %}
 
-<h3>Here's a list of all the tracks in {{ playlistName }}:</h3>
-	<ul>
-		{% for track in allTracks %}
-		<li> {{ track }} </li>
-		{% endfor %}
-	</ul>
+<div id="main">
 
-<h3>We couldn't find a clean version of the following tracks:</h3>
-	<ul>
-		{% for track in notCleanTracks %}
-		<li> {{ track }} </li>
-		{% endfor %}
-	</ul>
+	<!-- Content -->
+		<section id="content" class="main">
+			<span class="image main"><img src="images/pic04.jpg" alt="" /></span>
 
+				<h3>here's a list of all the tracks in {{ playlistName }}:</h3>
+					<ul>
+						{% for track in allTracks %}
+						<li> {{ track }} </li>
+						{% endfor %}
+					</ul>
+
+				<h3>we couldn't find a clean version of the following tracks:</h3>
+					<ul>
+						{% for track in notCleanTracks %}
+						<li> {{ track }} </li>
+						{% endfor %}
+					</ul>
+		</section>
+</div>
 {% endblock %}

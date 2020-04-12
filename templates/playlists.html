@@ -2,30 +2,25 @@
 
 {% block content %}
 
-<h3>Here's a list of all your Spotify playlists.</h3>
-	<ol>
-		{% for playlist in playlists %}
-		<li> {{ playlist }} </li>
-		{% endfor %}
-	</ol>
+<div id="main">
+
+	<!-- Content -->
+		<section id="content" class="main">
+			<span class="image main"><img src="images/pic04.jpg" alt="" /></span>
+			
+			<h3>select a Spotify playlist to clean:</h3>
+			<form action="{{ url_for('playlists') }}" method="POST">
+				{% for playlistID, playlist in playlists.items() %}
+					<input type="radio" id="{{ playlistID }}" name="select-playlist" value="{{ playlistID }}">
+					<label for="{{ playlistID }}">{{ playlist }}</label></br>
+				{% endfor %}
+
+				<button type="submit" class="button primary">
+					clean selected playlist
+				</button>
+			</form>
+</div>
 
 
-{% if validNum == "False" %}
-<h3>Please enter a valid playlist #</h3>
-{% endif %}
-
-<h3>Which playlist # would you like to clean?</h3>
-	<form action="{{ url_for('playlists') }}" method="POST">
-		<div class="form-group">
-			 
-			<label for="PlaylistNumbers">
-				Enter the playlist # to clean
-			</label>
-			<input type="text" class="form-control" id="PlaylistToClean" name="playlistToClean">
-		</div>
-		<button type="submit" class="btn btn-primary">
-			Submit
-		</button>
-	</form>
 
 {% endblock %}

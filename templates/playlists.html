@@ -9,7 +9,12 @@
 		{% endfor %}
 	</ol>
 
-<h3> Which playlist # would you like to clean? </h3>
+
+{% if validNum == "False" %}
+<h3>Please enter a valid playlist #</h3>
+{% endif %}
+
+<h3>Which playlist # would you like to clean?</h3>
 	<form action="{{ url_for('playlists') }}" method="POST">
 		<div class="form-group">
 			 

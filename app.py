@@ -12,6 +12,8 @@ app = Flask(__name__)
 clean = classes.MusicClean()
 user_playlists = classes.Playlists()
 
+debug = True
+
 def startup():
 	clean.reset()
 	user_playlists.reset()
@@ -20,6 +22,13 @@ def startup():
 def start():
 	if request.method == "GET":
 		startup()
+
+		if debug:
+			print("ROUTE: START")
+			print("USERNAME (should be None):", clean.username)
+			print("TOKEN (should be None):", clean.token)
+			print("PLAYLISTS (should be []):", user_playlists.playlists_list)
+
 		return render_template("home.html", auth_url=musicclean.get_authorize_url())
 
 def is_token_expired(token_info):
@@ -45,8 +54,6 @@ def getToken(code):
 	if response.status_code == 200:
 		token_info = response.json()
 		token = token_info['access_token']
-		print("TOKEN", token)
-		print("TOKEN INFO", token_info)
 		
 		clean.setToken(token)
 		clean.setTokenInfo(token_info)
@@ -56,6 +63,9 @@ def getToken(code):
 
 @app.route("/playlists/", methods=["GET", "POST"])
 def playlists():
+	if debug:
+		print("ROUTE: PLAYLISTS")
+
 	if request.method == "GET":
 		playlists_dict = musicclean.getPlaylists(clean.username, clean.token)
 		user_playlists.setPlaylistsDict(playlists_dict)
@@ -63,9 +73,12 @@ def playlists():
 		playlists_list = []
 		for playlist in playlists_dict:
 			playlists_list.append(playlist)
-		print("USERNAME", clean.username, "PLAYLISTS LIST", playlists_list)
+
 		user_playlists.setPlaylistsList(playlists_list)
 		user_playlists.setNumPlaylists(len(playlists_list))
+
+		if debug:
+			print("playlists_dict", user_playlists.playlists_dict, "playlists_list", user_playlists.playlists_list, "num_playlists", user_playlists.num_playlists)
 		
 		return render_template("playlists.html", playlists=playlists_list)
 
@@ -100,17 +113,30 @@ def getUsername():
 		user = response.json()
 		clean.setUsername(user['id'])
 	else:
-		print("Error retrieving user")
+		print("Error retrieving username")
 
 @app.route("/callback/", methods=["GET"])
 def callback():
+	if debug:
+		print("ROUTE: CALLBACK")
+
 	if clean.token is None:
 		getToken(request.args['code'])
+		
+		if debug:
+			print("Got new token:", clean.token)
+
 	elif clean.token is not None and is_token_expired(clean.token_info):
 		# refresh token here
 		print("need to refresh")
 
+		if debug:
+			print("Needed to refresh token")
+
 	getUsername()
+
+	if debug:
+		print("Got username:", clean.username)
 
 	return redirect(url_for('playlists'))
 

@@ -63,9 +63,6 @@ def getToken(code):
 
 @app.route("/playlists/", methods=["GET", "POST"])
 def playlists():
-	if debug:
-		print("ROUTE: PLAYLISTS")
-
 	if request.method == "GET":
 		playlists_dict = musicclean.getPlaylists(clean.username, clean.token)
 		user_playlists.setPlaylistsDict(playlists_dict)
@@ -78,12 +75,17 @@ def playlists():
 		user_playlists.setNumPlaylists(len(playlists_list))
 
 		if debug:
+			print("ROUTE: PLAYLISTS GET")
 			print("playlists_dict", user_playlists.playlists_dict, "playlists_list", user_playlists.playlists_list, "num_playlists", user_playlists.num_playlists)
 		
 		return render_template("playlists.html", playlists=playlists_list)
 
 	if request.method == "POST":
 		playlist_to_clean_num = int(request.form['playlistToClean']) # need to check if can be converted to int
+		if debug:
+			print("ROUTE: PLAYLISTS POST")
+			print("playlists_dict", user_playlists.playlists_dict, "playlists_list", user_playlists.playlists_list, "num_playlists", user_playlists.num_playlists)
+			print("playlist_to_clean_num", playlist_to_clean_num)
 		playlist_to_clean_name = user_playlists.playlists_list[playlist_to_clean_num-1]
 
 		user_playlists.setPlaylistToCleanNum(playlist_to_clean_num)

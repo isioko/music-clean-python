@@ -10,19 +10,27 @@
 <div id="main">
 	<!-- Content -->
 		<section id="content" class="main">
-				<h3>here's a list of all the tracks in {{ playlistName }}:</h3>
+				<h3>we've added a clean version of the following tracks to a cleaned {{ playlistName }} playlist:</h3>
 					<ul>
-						{% for track in allTracks %}
+						{% for track in cleanTracks %}
 						<li> {{ track }} </li>
 						{% endfor %}
 					</ul>
 
+				{% if hasNotClean == "True" %}
 				<h3>we couldn't find a clean version of the following tracks:</h3>
 					<ul>
 						{% for track in notCleanTracks %}
 						<li> {{ track }} </li>
 						{% endfor %}
 					</ul>
+				{% endif %}
+
+				<form action="{{ url_for('playlists') }}" method="GET">
+					<button type="submit" class="button primary">
+						clean another playlist
+					</button>
+				</form>
 		</section>
 </div>
 {% endblock %}

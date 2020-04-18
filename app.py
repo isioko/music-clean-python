@@ -10,7 +10,7 @@ import classes
 
 app = Flask(__name__)
 app.secret_key = "isiokoisi"
-SESSION_TYPE = 'redis'
+SESSION_TYPE = "filesystem"
 
 clean = classes.MusicClean()
 user_playlists = classes.Playlists()
@@ -91,25 +91,6 @@ def playlists():
 		playlist_to_clean_id = request.form['select-playlist']
 		playlist_to_clean_name = playlists_dict[playlist_to_clean_id]
 
-		print("playlist_to_clean_id", playlist_to_clean_id)
-
-	
-		# if session.get("playlists_list") is not None:
-		# 	playlists_list = session.get("playlists_list")
-		# 	playlist_to_clean_name = playlists_list[playlist_to_clean_num-1]
-		# else:
-		# 	# throw error
-		# 	playlist_to_clean_name = None
-
-		# if session.get("playlists_dict") is not None:
-		# 	playlists_dict = session.get("playlists_dict")
-		# 	playlists_list = session.get("playlists_list")
-		# 	playlist_to_clean_id = playlists_dict[playlists_list[playlist_to_clean_num-1]][0]
-		# else:
-		# 	# throw error
-		# 	playlist_to_clean_id = None
-
-		# session["playlist_to_clean_num"] = playlist_to_clean_num
 		session["playlist_to_clean_name"] = playlist_to_clean_name
 		session["playlist_to_clean_id"] = playlist_to_clean_id
 
@@ -117,18 +98,24 @@ def playlists():
 
 		playlists_dict = session.get("playlists_dict")
 		_, all_tracks, could_not_clean_tracks = musicclean.getTracks(session.get("username"), session.get("token"), playlist_to_clean_name, playlist_to_clean_id, clean_playlist_id, False)
-		session["all_tracks"] = all_tracks
 		session["could_not_clean_tracks"] = could_not_clean_tracks
+
+		clean_tracks = list(set(all_tracks).difference(set(could_not_clean_tracks)))
+		session["clean_tracks"] = clean_tracks
 
 		return redirect(url_for('cleanedPlaylist'))
 
 @app.route("/cleanedplaylist/", methods=["GET"])
 def cleanedPlaylist():
 	playlist_to_clean_name = session.get("playlist_to_clean_name")
-	all_tracks = session.get("all_tracks")
+	clean_tracks = session.get("clean_tracks")
 	could_not_clean_tracks = session.get("could_not_clean_tracks")
 
-	return render_template("cleaned_playlist.html", playlistName=playlist_to_clean_name, allTracks=all_tracks, notCleanTracks=could_not_clean_tracks)
+	has_uncleaned_tracks = "False"
+	if len(could_not_clean_tracks) > 0:
+		has_uncleaned_tracks = "True"
+
+	return render_template("cleaned_playlist.html", playlistName=playlist_to_clean_name,  cleanTracks=clean_tracks, notCleanTracks=could_not_clean_tracks, hasNotClean = has_uncleaned_tracks)
 
 
 def getUsername():

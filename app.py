@@ -64,23 +64,27 @@ def getToken(code):
 	else:
 		print("Error retrieving token")
 
+def getPlaylists():
+	playlists_dict = musicclean.getPlaylists(session.get("username"), session.get("token"))
+	session["playlists_dict"] = playlists_dict
+	
+	# playlists_list = []
+	# for playlist in playlists_dict:
+	# 	playlists_list.append(playlist)
+
+	# session["playlists_list"] = playlists_list
+	# session["num_playlists"] = len(playlists_list)	
+	
+	return playlists_dict
+
 
 @app.route("/playlists/", methods=["GET", "POST"])
 def playlists():
 	if request.method == "GET":
-		playlists_dict = musicclean.getPlaylists(session.get("username"), session.get("token"))
-		session["playlists_dict"] = playlists_dict
-		
-		playlists_list = []
-		for playlist in playlists_dict:
-			playlists_list.append(playlist)
-
-		session["playlists_list"] = playlists_list
-		session["num_playlists"] = len(playlists_list)	
-		
 		if debug:
 			print("ROUTE: PLAYLISTS GET")
-			print("SIZE OF PLAYLISTS_LIST", sys.getsizeof(playlists_list))
+
+		playlists_dict = getPlaylists()
 			
 		return render_template("playlists.html", playlists=playlists_dict, validNum="True")
 
@@ -88,7 +92,9 @@ def playlists():
 		if debug:
 			print("ROUTE: PLAYLISTS POST")
 
-		playlists_dict = session.get("playlists_dict")
+		# playlists_dict = session.get("playlists_dict")
+
+		playlists_dict = getPlaylists()
 
 		playlist_to_clean_id = request.form['select-playlist']
 		playlist_to_clean_name = playlists_dict[playlist_to_clean_id]
@@ -98,7 +104,7 @@ def playlists():
 
 		clean_playlist_id = musicclean.createPlaylist(session.get("username"), session.get("token"), playlist_to_clean_name)
 
-		playlists_dict = session.get("playlists_dict")
+		# playlists_dict = session.get("playlists_dict")
 		_, all_tracks, could_not_clean_tracks = musicclean.getTracks(session.get("username"), session.get("token"), playlist_to_clean_name, playlist_to_clean_id, clean_playlist_id, False)
 		session["could_not_clean_tracks"] = could_not_clean_tracks
 

@@ -94,30 +94,47 @@ def playlists():
 
 		# playlists_dict = session.get("playlists_dict")
 
-		playlists_dict = getPlaylists()
+		# playlists_dict = getPlaylists()
 
 		playlist_to_clean_id = request.form['select-playlist']
-		playlist_to_clean_name = playlists_dict[playlist_to_clean_id]
+		# playlist_to_clean_name = playlists_dict[playlist_to_clean_id]
 
-		session["playlist_to_clean_name"] = playlist_to_clean_name
+		# session["playlist_to_clean_name"] = playlist_to_clean_name
 		session["playlist_to_clean_id"] = playlist_to_clean_id
 
-		clean_playlist_id = musicclean.createPlaylist(session.get("username"), session.get("token"), playlist_to_clean_name)
+		# clean_playlist_id = musicclean.createPlaylist(session.get("username"), session.get("token"), playlist_to_clean_name)
 
-		# playlists_dict = session.get("playlists_dict")
-		_, all_tracks, could_not_clean_tracks = musicclean.getTracks(session.get("username"), session.get("token"), playlist_to_clean_name, playlist_to_clean_id, clean_playlist_id, False)
-		session["could_not_clean_tracks"] = could_not_clean_tracks
+		# # playlists_dict = session.get("playlists_dict")
+		# _, all_tracks, could_not_clean_tracks = musicclean.getTracks(session.get("username"), session.get("token"), playlist_to_clean_name, playlist_to_clean_id, clean_playlist_id, False)
+		# session["could_not_clean_tracks"] = could_not_clean_tracks
 
-		clean_tracks = list(set(all_tracks).difference(set(could_not_clean_tracks)))
-		session["clean_tracks"] = clean_tracks
+		# clean_tracks = list(set(all_tracks).difference(set(could_not_clean_tracks)))
+		# session["clean_tracks"] = clean_tracks
 
 		return redirect(url_for('cleanedPlaylist'))
 
 @app.route("/cleanedplaylist/", methods=["GET"])
 def cleanedPlaylist():
-	playlist_to_clean_name = session.get("playlist_to_clean_name")
-	clean_tracks = session.get("clean_tracks")
-	could_not_clean_tracks = session.get("could_not_clean_tracks")
+	# playlist_to_clean_name = session.get("playlist_to_clean_name")
+	# clean_tracks = session.get("clean_tracks")
+	# could_not_clean_tracks = session.get("could_not_clean_tracks")
+
+	playlists_dict = getPlaylists()
+
+	playlist_to_clean_id = session.get("playlist_to_clean_id")
+	playlist_to_clean_name = playlists_dict[playlist_to_clean_id]
+
+	# session["playlist_to_clean_name"] = playlist_to_clean_name
+	# session["playlist_to_clean_id"] = playlist_to_clean_id
+
+	clean_playlist_id = musicclean.createPlaylist(session.get("username"), session.get("token"), playlist_to_clean_name)
+
+	# playlists_dict = session.get("playlists_dict")
+	_, all_tracks, could_not_clean_tracks = musicclean.getTracks(session.get("username"), session.get("token"), playlist_to_clean_name, playlist_to_clean_id, clean_playlist_id, False)
+	# session["could_not_clean_tracks"] = could_not_clean_tracks
+
+	clean_tracks = list(set(all_tracks).difference(set(could_not_clean_tracks)))
+	# session["clean_tracks"] = clean_tracks
 
 	has_uncleaned_tracks = "False"
 	if len(could_not_clean_tracks) > 0:

@@ -1,4 +1,5 @@
 import os
+import sys
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import requests 
 import base64 
@@ -79,6 +80,7 @@ def playlists():
 		
 		if debug:
 			print("ROUTE: PLAYLISTS GET")
+			print("SIZE OF PLAYLISTS_LIST", sys.getsizeof(playlists_list))
 			
 		return render_template("playlists.html", playlists=playlists_dict, validNum="True")
 

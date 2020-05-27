@@ -5,6 +5,7 @@ import requests
 import time
 
 import musicclean
+import applemusicclean
 import secrets
 import classes
 
@@ -35,7 +36,7 @@ def start():
 		session["token"] = None
 		session["username"] = None
 
-		return render_template("home.html", auth_url=musicclean.get_authorize_url())
+		return render_template("home.html", auth_url=musicclean.get_authorize_url(), dev_token=applemusicclean.get_dev_token())
 
 
 """

@@ -38,6 +38,8 @@ def get_dev_token():
 
 	token = jwt.encode(payload, secrets.SECRET_KEY, algorithm=ALG, headers=headers)
 	token_str = token.decode()
+
+	return token_str
 	
 	# put token_str in session when ready
 

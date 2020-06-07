@@ -10,3 +10,7 @@ Python JSON parsing -> https://linuxconfig.org/how-to-parse-data-from-json-into-
 Setting up virtualenv on Windows -> https://www.geeksforgeeks.org/creating-python-virtual-environment-windows-linux/
 Flask by example (setting up Flask and Heroku deployment) -> https://realpython.com/flask-by-example-part-1-project-setup/
 Building Flask front end for scripts -> https://netdevops.me/2016/04/building-web-front-end-for-python-scripts-with-flask/
+
+
+### Apple Music implementation
+Apple Music web app github -> https://github.com/Musish/Musish

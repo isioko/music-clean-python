@@ -43,7 +43,17 @@ def get_dev_token():
 	
 	# put token_str in session when ready
 
-get_dev_token()
+
+def get_playlists():
+	url = "https://api.music.apple.com/v1/me/library/playlists"
+
+	response = requests.get(url)
+	print(response.text)
+
+	playlists = response.json()
+	print(playlists.items)
+
+
 
 # """
 # SPOTIFY AUTHORIZATION AND TOKEN RETRIEVAL

@@ -35,12 +35,12 @@ def start():
 		session["token"] = None
 		session["username"] = None
 
-		print("dev token before get new:", session.get("dev_token"))
-		session["dev_token"] = applemusicclean.get_dev_token()
-		print("dev token after get new:", session.get("dev_token"))
+		# print("dev token before get new:", session.get("dev_token"))
+		# session["dev_token"] = applemusicclean.get_dev_token()
+		# print("dev token after get new:", session.get("dev_token"))
 
-		return render_template("home.html", auth_url=musicclean.get_authorize_url(), dev_token=session.get("dev_token"))
-
+		# return render_template("home.html", auth_url=musicclean.get_authorize_url() """, dev_token=session.get("dev_token")""")
+		return render_template("home.html", auth_url=musicclean.get_authorize_url())
 
 """
 Shows a list of all of user's Spotify playlists and allows user to select one to clean

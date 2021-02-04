@@ -35,8 +35,9 @@ def start():
 		session["token"] = None
 		session["username"] = None
 
+		print("dev token before get new:", session.get("dev_token"))
 		session["dev_token"] = applemusicclean.get_dev_token()
-		# print(session.get("dev_token"))
+		print("dev token after get new:", session.get("dev_token"))
 
 		return render_template("home.html", auth_url=musicclean.get_authorize_url(), dev_token=session.get("dev_token"))
 
@@ -94,6 +95,7 @@ def callback():
 @app.route("/test/", methods=["GET"])
 def test():
 	# applemusicclean.get_playlists()
+	print("dev token after get new:", session.get("dev_token"))
 
 	return render_template("test.html", dev_token=session["dev_token"])
 

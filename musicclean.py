@@ -178,7 +178,10 @@ def create_playlist(username, token, playlist_to_clean):
 	returns: id of newly created Spotify playlist
 	"""
 
-	new_playlist_name = playlist_to_clean + " CLEANED " + str(datetime.now())
+	curr_date_time = datetime.now()
+	curr_date_time = curr_date_time.strftime("%x %H:%M")
+
+	new_playlist_name = "[clean] " + playlist_to_clean + " " + curr_date_time
 
 	sp = spotipy.Spotify(auth=token)
 	response = sp.user_playlist_create(username, new_playlist_name, public=False, description='')

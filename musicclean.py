@@ -179,7 +179,7 @@ def create_playlist(username, token, playlist_to_clean):
 	"""
 
 	curr_date_time = datetime.now()
-	curr_date_time = curr_date_time.strftime("%x %H:%M")
+	curr_date_time = curr_date_time.strftime("%x")
 
 	new_playlist_name = "[clean] " + playlist_to_clean + " " + curr_date_time
 
